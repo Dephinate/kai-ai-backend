@@ -14,4 +14,4 @@ chroma
 pypdf
 fpdf
 youtube-transcript-api
-pytube
+pytubecd

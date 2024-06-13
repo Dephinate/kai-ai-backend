@@ -20,5 +20,6 @@ def key_check(api_key: str = Header(None)):
   else:
     set_key = "dev"
   
+  print("api_key",api_key,set_key)
   if api_key is None or api_key != set_key:
     raise HTTPException(status_code=401, detail="Invalid API Request Key")

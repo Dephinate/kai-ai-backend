@@ -54,3 +54,4 @@ class ChatMessage(BaseModel):
     type: str
     text: str
 
+

@@ -18,7 +18,10 @@ tools_config = load_config()
 
 def get_executor_by_name(module_path):
     try:
+        print("modeule_path: ", module_path)
         module = __import__(module_path, fromlist=['executor'])
+        print("executor imported")
+        input()
         return getattr(module, 'executor')
     except Exception as e:
         logger.error(f"Failed to import executor from {module_path}: {str(e)}")
@@ -108,13 +111,19 @@ def finalize_inputs(input_data, validate_data: List[Dict[str, str]]) -> Dict[str
 
 def execute_tool(tool_id, request_inputs_dict):
     try:
+        # input()
         tool_config = tools_config.get(str(tool_id))
+        print(tool_config)
         
+        # input()
         if not tool_config:
             raise HTTPException(status_code=404, detail="Tool executable not found")
-        
+        print("starting executor at",tool_config['path'])
         execute_function = get_executor_by_name(tool_config['path'])
+        # input()
         request_inputs_dict['verbose'] = True
+
+        print("inside execute tool")
         
         return execute_function(**request_inputs_dict)
     

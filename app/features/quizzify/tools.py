@@ -317,6 +317,7 @@ class QuizBuilder:
 
         while len(generated_questions) < num_questions and attempts < max_attempts:
             response = chain.invoke(self.topic)
+            response = response.replace("```json", "").replace("```", "").replace("\n```", "").replace("\n```json", "")
             if self.verbose:
                 logger.info(f"Generated response attempt {attempts + 1}: {response}")
             

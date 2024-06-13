@@ -14,7 +14,10 @@ import os
 logger = setup_logger(__name__)
 
 # AI Model
+print("loading_model")
 model = VertexAI(model="gemini-1.0-pro")
+
+print("model_loaded")
 
 
 def read_text_file(file_path):
