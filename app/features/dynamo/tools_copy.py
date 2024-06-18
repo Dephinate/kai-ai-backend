@@ -122,30 +122,19 @@ class YouTubeLoader(BaseLoader):
             self.transcript_format = transcript_format
             self.continue_on_failure = continue_on_failure
 
-    def is_within_range(self,d):
-        try:
-            print("inside is_within_range: ")
-            if self.start_time is not None and d['start'] < self.start_time:
-                print("False:", self.start_time, d)
-                return False
-            if self.end_time is not None and d['start'] > self.end_time:
-                print("False:", self.start_time, d)
-
-                return False
-            print("True:", self.start_time, d)
-            
-            return True
-        except Exception as e:
-            print("is_within_range failed")
-            raise e
-
-
     # Filer transcript text by time stamp
-    def filter_dicts_by_time_stamp(self, list_of_dicts):
+    def filter_dicts_by_time_stamp(self,list_of_dicts, start=None, end=None):
     # Define the filtering function based on the provided min and/or max values
-        print("input to filter transcript: ",self.start_time,self.end_time,list_of_dicts)
+        print("start_type: ", type(start))
+        print("end_type: ", type(end))
+        def is_within_range(d):
+            if start is not None and float(d['start']) < float(start):
+                return False
+            if end is not None and float(d['start']) > float(end):
+                return False
+            return True
         # Apply the filtering function to the list
-        return [d for d in list_of_dicts if self.is_within_range(d)]
+        return [d for d in list_of_dicts if is_within_range(d)]
 
     def load(self) -> List[Document]:
         """Load documents."""
@@ -186,16 +175,31 @@ class YouTubeLoader(BaseLoader):
             transcript = transcript.translate(self.translation)
 
         transcript_pieces = transcript.fetch()
-        print("transcript_pieces: ",transcript_pieces)
+        # print("transcript_pieces: ",transcript_pieces)
         
         filetred_transcrpit_peices =[]
         
         # Time Stamp Retrieval
         print("About to filter with start:", self.start_time, "and end:", self.end_time)
-
-        filetred_transcrpit_peices = self.filter_dicts_by_time_stamp(list_of_dicts=transcript_pieces)
-        # filetred_transcrpit_peices = self.filter_dicts_by_time_stamp(list_of_dicts=transcript_pieces, start=self.start_time, end=self.end_time)
+        filetred_transcrpit_peices = self.filter_dicts_by_time_stamp(list_of_dicts=transcript_pieces,start=self.start_time,end=self.end_time)
+        # check if there is any transcripts within the time stamps
         print("filetred_transcrpit_peices: ",filetred_transcrpit_peices)
+        if not len(filetred_transcrpit_peices) > 0:
+            raise ValueError(f"No video transcripts available for given time stamps")
+        
+        if self.start_time and self.end_time:
+            metadata['length'] = float(self.end_time) - float(self.start_time)
+            print("length: ",metadata['length'])
+        
+        if self.start_time and not self.end_time:
+            metadata['length'] = float(filetred_transcrpit_peices[-1]['start']) - float(self.start_time)
+            print("length: ",metadata['length'])
+
+        if not self.start_time and self.end_time:
+            metadata['length'] = float(self.end_time) - float(filetred_transcrpit_peices[0]['start'])
+            print("length: ",metadata['length'])        
+
+
         if self.transcript_format == TranscriptFormat.TEXT:
             transcript = " ".join([t["text"].strip(" ") for t in filetred_transcrpit_peices])
             return [Document(page_content=transcript, metadata=metadata)]
@@ -295,9 +299,6 @@ class Summarizer():
         return response['output_text']
 
 
-
-
-    
 def generate_flashcards(summary: str, verbose=False) -> list:
     # Receive the summary from the map reduce chain and generate flashcards
     parser = JsonOutputParser(pydantic_object=Flashcard)

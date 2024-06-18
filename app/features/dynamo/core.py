@@ -30,7 +30,7 @@ def executor(**input_dict):
     summarizer  = Summarizer()
     print("loaded_summarizer")
     print("input_to_executor: ",input_dict)
-    input()
+    # input()
 
     input_transcript = {
         "youtube_url" : input_dict.get("youtube_url",None),
@@ -41,12 +41,14 @@ def executor(**input_dict):
 
     print("input_for_transcript: ",input_transcript)
     print("input_for_files: ", input_files)
-    input()
+    # input()
 
 
 
     if input_transcript["youtube_url"] is not None:
         summary = summarizer.summarize_transcript(verbose=True,**input_transcript)
+        print("summary: ",summary)
+        input()
         flashcards = generate_flashcards(summary)
         sanitized_flashcards = []
         for flashcard in flashcards:

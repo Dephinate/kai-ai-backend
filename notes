@@ -7,3 +7,41 @@
 7) CSV files - Langchain
 8) web pages -  Langchain HTML
 10) and personal notes
+
+
+{
+  "user": {
+    "id": "string",
+    "fullName": "string",
+    "email": "string"
+  },
+  "type": "chat",
+  "tool_data": {
+    "tool_id": 0, // 0 indicates quizify and 1 indicates dynamo
+    "inputs": [
+      {
+        "name": "string",
+        "value": "string"
+      }
+    ]
+  }
+}
+
+// inputs have to be like:
+"inputs": [
+    {
+        "label": "Topic",
+        "name": "topic",
+        "type": "text"
+    },
+    {
+        "label": "Number of Questions",
+        "name": "num_questions",
+        "type": "number"
+    },
+    {
+        "label": "Upload PDF files",
+        "name": "files",
+        "type": "file"
+    }
+]
